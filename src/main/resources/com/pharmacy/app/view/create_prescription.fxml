@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pharmacy.app.controller.CreatePrescriptionController">
+    <padding>
+        <Insets top="15" right="30" bottom="20" left="30"/>
+    </padding>
+
+    <HBox>
+        <Button text="&#8592; Back" onAction="#handleCancel"/>
+    </HBox>
+
+    <Label text="&#128203; New Prescription" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <Label text="Patient:"/>
+        <ComboBox fx:id="patientBox" prefWidth="220"/>
+        <Label text="Doctor Name:"/>
+        <TextField fx:id="doctorField" prefWidth="180"/>
+    </HBox>
+
+    <Label text="Add Medicines to Prescription:" style="-fx-font-weight: bold;"/>
+    <HBox spacing="10" alignment="CENTER_LEFT">
+        <TextField fx:id="medicineSearchField" promptText="Type medicine name..." prefWidth="220"/>
+        <TextField fx:id="dosageField" promptText="Dosage (e.g. 1-0-1 after food)" prefWidth="200"/>
+        <TextField fx:id="quantityField" promptText="Qty" prefWidth="60"/>
+        <Button text="Add Item" onAction="#handleAddItem"/>
+    </HBox>
+    <ListView fx:id="suggestionsList" prefHeight="100" visible="false" managed="false"/>
+
+    <Label text="Items in this prescription:" style="-fx-font-weight: bold;"/>
+    <ListView fx:id="itemsListView" prefHeight="160"/>
+
+    <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
+
+    <HBox spacing="10">
+        <Button text="Save Prescription" onAction="#handleSave" style="-fx-font-weight: bold;"/>
+        <Button text="Cancel" onAction="#handleCancel"/>
+    </HBox>
+</VBox>

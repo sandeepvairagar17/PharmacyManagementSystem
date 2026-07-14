@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pharmacy.app.controller.ManageUsersController">
+    <top>
+        <VBox spacing="10">
+            <padding>
+                <Insets top="15" right="15" bottom="10" left="15"/>
+            </padding>
+            <HBox>
+                <Button text="&#8592; Back" onAction="#handleBack"/>
+            </HBox>
+            <Label text="&#128101; Manage Users" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <Label text="Create staff accounts (Pharmacist / Cashier). There is no public registration - only Admins add users here." style="-fx-text-fill: #666;"/>
+
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <TextField fx:id="usernameField" promptText="Username" prefWidth="140"/>
+                <PasswordField fx:id="passwordField" promptText="Password" prefWidth="140"/>
+                <TextField fx:id="fullNameField" promptText="Full Name" prefWidth="160"/>
+                <ComboBox fx:id="roleBox" prefWidth="130"/>
+                <Button text="+ Create User" onAction="#handleCreateUser" style="-fx-font-weight: bold;"/>
+            </HBox>
+            <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="userTable">
+            <columns>
+                <TableColumn fx:id="usernameCol" text="Username" prefWidth="150"/>
+                <TableColumn fx:id="fullNameCol" text="Full Name" prefWidth="200"/>
+                <TableColumn fx:id="roleCol" text="Role" prefWidth="130"/>
+                <TableColumn fx:id="activeCol" text="Active" prefWidth="80"/>
+                <TableColumn fx:id="actionCol" text="Action" prefWidth="150"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

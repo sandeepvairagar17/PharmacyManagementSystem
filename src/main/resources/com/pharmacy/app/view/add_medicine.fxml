@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pharmacy.app.controller.AddMedicineController">
+    <padding>
+        <Insets top="15" right="40" bottom="30" left="40"/>
+    </padding>
+
+    <HBox>
+        <Button text="&#8592; Back" onAction="#handleCancel"/>
+    </HBox>
+
+    <Label text="&#128138; Add New Medicine" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <GridPane hgap="10" vgap="10">
+        <Label text="Name*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+        <TextField fx:id="nameField" GridPane.rowIndex="0" GridPane.columnIndex="1" prefWidth="250"/>
+
+        <Label text="Generic Name" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+        <TextField fx:id="genericField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+
+        <Label text="Category" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <TextField fx:id="categoryField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
+
+        <Label text="Manufacturer" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <TextField fx:id="manufacturerField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+
+        <Label text="Unit (e.g. strip, bottle)" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <TextField fx:id="unitField" GridPane.rowIndex="4" GridPane.columnIndex="1" text="strip"/>
+
+        <Label text="Unit Price*" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="priceField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+
+        <Label text="Tax % (GST)" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="taxField" GridPane.rowIndex="6" GridPane.columnIndex="1" text="5"/>
+
+        <Label text="Barcode" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <TextField fx:id="barcodeField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+
+        <Label text="Low Stock Alert Threshold" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+        <TextField fx:id="thresholdField" GridPane.rowIndex="8" GridPane.columnIndex="1" text="10"/>
+
+        <Label text="Controlled Drug?" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+        <CheckBox fx:id="controlledCheckBox" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+    </GridPane>
+
+    <Label text="GST guide (as of the 2025 reform): most medicines = 5%, life-saving/notified drugs = 0% (exempt), nicotine gum/APIs = 18%. Verify per-product with your CA/GST portal."
+           wrapText="true" style="-fx-text-fill: #666; -fx-font-size: 11px;" maxWidth="450"/>
+
+    <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
+
+    <HBox spacing="10">
+        <Button text="Save" onAction="#handleSave" style="-fx-font-weight: bold;"/>
+        <Button text="Cancel" onAction="#handleCancel"/>
+    </HBox>
+</VBox>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.pharmacy.app.controller.PatientController">
+    <top>
+        <VBox spacing="8">
+            <padding>
+                <Insets top="10" right="15" bottom="8" left="15"/>
+            </padding>
+            <HBox>
+                <Button text="&#8592; Back" onAction="#handleBack"/>
+            </HBox>
+            <Label text="&#128100; Patients" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <HBox spacing="10">
+                <TextField fx:id="searchField" promptText="Search by name or phone..." prefWidth="300"/>
+                <Button text="Search" onAction="#handleSearch"/>
+                <Button text="Clear" onAction="#handleClear"/>
+                <Button text="+ Add Patient" onAction="#handleAddPatient" style="-fx-font-weight: bold;"/>
+            </HBox>
+        </VBox>
+    </top>
+
+    <center>
+        <TableView fx:id="patientTable">
+            <columns>
+                <TableColumn fx:id="nameCol" text="Name" prefWidth="180"/>
+                <TableColumn fx:id="phoneCol" text="Phone" prefWidth="130"/>
+                <TableColumn fx:id="dobCol" text="DOB" prefWidth="100"/>
+                <TableColumn fx:id="allergiesCol" text="Allergies" prefWidth="200"/>
+                <TableColumn fx:id="notesCol" text="Notes" prefWidth="200"/>
+            </columns>
+        </TableView>
+    </center>
+</BorderPane>

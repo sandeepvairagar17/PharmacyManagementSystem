@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox alignment="CENTER" spacing="20" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="com.pharmacy.app.controller.DashboardController">
+    <padding>
+        <Insets top="40" right="40" bottom="40" left="40"/>
+    </padding>
+
+    <Label fx:id="welcomeLabel" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+
+    <HBox spacing="15" alignment="CENTER">
+        <Button text="&#128176; Billing / New Sale" onAction="#handleBilling" style="-fx-font-size: 14px; -fx-pref-width: 175px;"/>
+        <Button text="&#128138; Inventory" onAction="#handleInventory" style="-fx-font-size: 14px; -fx-pref-width: 175px;"/>
+        <Button text="&#128100; Patients" onAction="#handlePatients" style="-fx-font-size: 14px; -fx-pref-width: 175px;"/>
+        <Button text="&#128203; Prescriptions" onAction="#handlePrescriptions" style="-fx-font-size: 14px; -fx-pref-width: 175px;"/>
+    </HBox>
+    <HBox spacing="15" alignment="CENTER">
+        <Button text="&#128202; Reports" onAction="#handleReports" style="-fx-font-size: 14px; -fx-pref-width: 175px;"/>
+        <Button text="&#128190; Backup &amp; Restore" onAction="#handleBackup" style="-fx-font-size: 14px; -fx-pref-width: 175px;"/>
+        <Button fx:id="manageUsersButton" text="&#128101; Manage Users" onAction="#handleManageUsers" style="-fx-font-size: 14px; -fx-pref-width: 175px;"/>
+    </HBox>
+
+    <Button text="Log Out" onAction="#handleLogout"/>
+
+</VBox>
