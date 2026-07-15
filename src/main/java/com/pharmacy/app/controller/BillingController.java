@@ -11,9 +11,11 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.geometry.Insets;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
 
 import java.util.List;
@@ -44,7 +46,7 @@ public class BillingController {
 
     @FXML
     public void initialize() {
-        cartNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
+        cartNameCol.setCellValueFactory(new PropertyValueFactory<>("name")); // uses getName() -> displayName
         cartQtyCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         cartPriceCol.setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
         cartTaxCol.setCellValueFactory(new PropertyValueFactory<>("taxPct"));
@@ -59,11 +61,33 @@ public class BillingController {
         paymentModeBox.setItems(FXCollections.observableArrayList("CASH", "CARD", "UPI", "OTHER"));
         paymentModeBox.getSelectionModel().selectFirst();
 
-        // Live discount recalculation as the user types
         discountField.textProperty().addListener((obs, oldVal, newVal) -> recalcTotals());
 
         setupAutocomplete();
+        setupBarcodeScan();
         recalcTotals();
+    }
+
+    /**
+     * A barcode scanner behaves like a keyboard: it types the code into whatever
+     * field is focused, then sends Enter. This handles that Enter keystroke -
+     * if the scanned code exactly matches a medicine's barcode, add it straight
+     * to the cart (skip needing to click a suggestion, since speed matters at checkout).
+     */
+    private void setupBarcodeScan() {
+        searchField.setOnAction(event -> {
+            String code = searchField.getText().trim();
+            if (code.isEmpty()) return;
+
+            Medicine exactMatch = MedicineDAO.findByBarcode(code);
+            if (exactMatch != null) {
+                hideSuggestions();
+                searchField.clear();
+                promptSaleDetailsAndAdd(exactMatch);
+            } else {
+                errorLabel.setText("No medicine found with barcode \"" + code + "\". Check it was scanned/entered correctly, or add it via Inventory.");
+            }
+        });
     }
 
     private void setupAutocomplete() {
@@ -74,7 +98,7 @@ public class BillingController {
                 if (empty || m == null) {
                     setText(null);
                 } else {
-                    setText(m.getName() + "  (Stock: " + m.getTotalStock() + ", Price: " + m.getUnitPrice() + ")");
+                    setText(m.getName() + "  (Stock: " + m.getStockDisplay() + ", " + m.getUnit() + " price: " + String.format("%.2f", m.getPackPrice()) + ")");
                 }
             }
         });
@@ -100,10 +124,45 @@ public class BillingController {
                 if (selected != null) {
                     hideSuggestions();
                     searchField.clear();
-                    promptQuantityAndAdd(selected);
+                    promptSaleDetailsAndAdd(selected);
                 }
             }
         });
+
+        // Real barcode scanners "type" the code then send Enter automatically -
+        // this makes scan-and-go actually work, not just manual clicking.
+        searchField.setOnAction(event -> handleEnterKey());
+    }
+
+    private void handleEnterKey() {
+        String keyword = searchField.getText().trim();
+        if (keyword.isEmpty()) return;
+
+        List<Medicine> matches = MedicineDAO.search(keyword);
+
+        // Prefer an EXACT barcode match first (this is what a real scan produces)
+        Medicine exactBarcodeMatch = matches.stream()
+                .filter(m -> keyword.equals(m.getBarcode()))
+                .findFirst()
+                .orElse(null);
+
+        if (exactBarcodeMatch != null) {
+            hideSuggestions();
+            searchField.clear();
+            promptSaleDetailsAndAdd(exactBarcodeMatch);
+            return;
+        }
+
+        // No exact barcode match - if there's exactly one name match, use it;
+        // otherwise leave the suggestion list open for the user to pick manually.
+        if (matches.size() == 1) {
+            hideSuggestions();
+            searchField.clear();
+            promptSaleDetailsAndAdd(matches.get(0));
+        } else if (matches.isEmpty()) {
+            errorLabel.setText("No medicine found matching \"" + keyword + "\". If this was a barcode scan, check the barcode is saved on a medicine in Inventory.");
+        }
+        // if multiple matches, do nothing extra - suggestion list is already showing them
     }
 
     private void showSuggestions() {
@@ -134,7 +193,12 @@ public class BillingController {
         cartRemoveCol.setCellFactory(cellFactory);
     }
 
-    private void promptQuantityAndAdd(Medicine medicine) {
+    /**
+     * Shows a dialog asking HOW to sell this medicine: as whole packs (e.g. strips)
+     * or as loose individual units (e.g. single tablets) - only offered if the
+     * medicine's pack size supports splitting. Converts to base units before adding to cart.
+     */
+    private void promptSaleDetailsAndAdd(Medicine medicine) {
         errorLabel.setText("");
 
         if (medicine.getTotalStock() <= 0) {
@@ -142,28 +206,64 @@ public class BillingController {
             return;
         }
 
-        TextInputDialog qtyDialog = new TextInputDialog("1");
-        qtyDialog.setTitle("Quantity");
-        qtyDialog.setHeaderText(medicine.getName() + " - Available: " + medicine.getTotalStock());
-        qtyDialog.setContentText("Enter quantity:");
-        Optional<String> qtyResult = qtyDialog.showAndWait();
+        Dialog<ButtonType> dialog = new Dialog<>();
+        dialog.setTitle("Add to Cart");
+        dialog.setHeaderText(medicine.getName() + " - Available: " + medicine.getStockDisplay());
 
-        if (qtyResult.isEmpty()) return;
+        ButtonType addButtonType = new ButtonType("Add", ButtonBar.ButtonData.OK_DONE);
+        dialog.getDialogPane().getButtonTypes().addAll(addButtonType, ButtonType.CANCEL);
 
-        int quantity;
+        GridPane grid = new GridPane();
+        grid.setHgap(10);
+        grid.setVgap(10);
+        grid.setPadding(new Insets(15));
+
+        ToggleGroup saleTypeGroup = new ToggleGroup();
+        RadioButton packOption = new RadioButton("Whole " + medicine.getUnit() + "(s)  -  " + String.format("%.2f", medicine.getPackPrice()) + " each");
+        RadioButton looseOption = new RadioButton("Loose / individual units  -  " + String.format("%.2f", medicine.getUnitPrice()) + " each");
+        packOption.setToggleGroup(saleTypeGroup);
+        looseOption.setToggleGroup(saleTypeGroup);
+        packOption.setSelected(true);
+
+        TextField qtyField = new TextField("1");
+
+        if (medicine.isSplittable()) {
+            grid.add(new Label("Sell as:"), 0, 0);
+            grid.add(packOption, 1, 0);
+            grid.add(looseOption, 1, 1);
+            grid.add(new Label("Quantity:"), 0, 2);
+            grid.add(qtyField, 1, 2);
+        } else {
+            // Not splittable (e.g. a bottle of syrup) - just ask quantity, always "packs" of 1 unit each
+            grid.add(new Label("Quantity:"), 0, 0);
+            grid.add(qtyField, 1, 0);
+        }
+
+        dialog.getDialogPane().setContent(grid);
+
+        Optional<ButtonType> result = dialog.showAndWait();
+        if (result.isEmpty() || result.get() != addButtonType) return;
+
+        int enteredQty;
         try {
-            quantity = Integer.parseInt(qtyResult.get().trim());
+            enteredQty = Integer.parseInt(qtyField.getText().trim());
         } catch (NumberFormatException e) {
             errorLabel.setText("Quantity must be a number.");
             return;
         }
-
-        if (quantity <= 0) {
+        if (enteredQty <= 0) {
             errorLabel.setText("Quantity must be greater than zero.");
             return;
         }
-        if (quantity > medicine.getTotalStock()) {
-            errorLabel.setText("Only " + medicine.getTotalStock() + " unit(s) available for " + medicine.getName() + ".");
+
+        boolean sellingByPack = !medicine.isSplittable() || packOption.isSelected();
+        int baseUnitsToAdd = sellingByPack ? enteredQty * medicine.getPackSize() : enteredQty;
+        String saleDescription = sellingByPack
+                ? enteredQty + " " + medicine.getUnit() + (enteredQty > 1 ? "s" : "")
+                : enteredQty + " loose unit" + (enteredQty > 1 ? "s" : "");
+
+        if (baseUnitsToAdd > medicine.getTotalStock()) {
+            errorLabel.setText("Only " + medicine.getStockDisplay() + " available for " + medicine.getName() + ".");
             return;
         }
 
@@ -178,14 +278,16 @@ public class BillingController {
             }
         }
 
+        // If this exact medicine is already in the cart, merge quantities
         for (CartItem existing : cart) {
             if (existing.getMedicineId() == medicine.getId()) {
-                int newQty = existing.getQuantity() + quantity;
+                int newQty = existing.getQuantity() + baseUnitsToAdd;
                 if (newQty > medicine.getTotalStock()) {
                     errorLabel.setText("Cannot add - exceeds available stock for " + medicine.getName() + ".");
                     return;
                 }
                 existing.setQuantity(newQty);
+                existing.setDisplayName(medicine.getName() + " (" + newQty + " total units)");
                 cartTable.refresh();
                 recalcTotals();
                 return;
@@ -194,7 +296,8 @@ public class BillingController {
 
         CartItem item = new CartItem(medicine.getId(), medicine.getName(), medicine.getUnitPrice(),
                 medicine.getTaxPct(), medicine.getTotalStock(), medicine.isControlled());
-        item.setQuantity(quantity);
+        item.setQuantity(baseUnitsToAdd);
+        item.setDisplayName(medicine.getName() + " (" + saleDescription + ")");
         cart.add(item);
     }
 
@@ -214,7 +317,7 @@ public class BillingController {
     private double parseDiscountPct() {
         try {
             double pct = Double.parseDouble(discountField.getText().trim());
-            return Math.max(0, Math.min(pct, 100)); // clamp between 0-100%
+            return Math.max(0, Math.min(pct, 100));
         } catch (Exception e) {
             return 0;
         }

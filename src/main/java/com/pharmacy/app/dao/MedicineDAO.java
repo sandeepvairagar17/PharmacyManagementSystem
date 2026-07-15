@@ -9,11 +9,10 @@ import java.util.List;
 
 public class MedicineDAO {
 
-    /** Inserts a new medicine into the catalog. Returns the generated ID. */
     public static int addMedicine(Medicine m) {
         Connection conn = DatabaseManager.getConnection();
-        String sql = "INSERT INTO medicines (name, generic_name, category, manufacturer, unit, unit_price, tax_pct, is_controlled, barcode, low_stock_threshold) " +
-                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String sql = "INSERT INTO medicines (name, generic_name, category, manufacturer, unit, unit_price, pack_size, tax_pct, is_controlled, barcode, low_stock_threshold) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, m.getName());
@@ -22,10 +21,11 @@ public class MedicineDAO {
             ps.setString(4, m.getManufacturer());
             ps.setString(5, m.getUnit());
             ps.setDouble(6, m.getUnitPrice());
-            ps.setDouble(7, m.getTaxPct());
-            ps.setInt(8, m.isControlled() ? 1 : 0);
-            ps.setString(9, m.getBarcode());
-            ps.setInt(10, m.getLowStockThreshold());
+            ps.setInt(7, m.getPackSize());
+            ps.setDouble(8, m.getTaxPct());
+            ps.setInt(9, m.isControlled() ? 1 : 0);
+            ps.setString(10, m.getBarcode());
+            ps.setInt(11, m.getLowStockThreshold());
             ps.executeUpdate();
 
             try (ResultSet keys = ps.getGeneratedKeys()) {
@@ -39,10 +39,6 @@ public class MedicineDAO {
         return -1;
     }
 
-    /**
-     * Returns all medicines with their total stock quantity
-     * (sum of quantity across all non-expired batches).
-     */
     public static List<Medicine> getAllMedicines() {
         Connection conn = DatabaseManager.getConnection();
         List<Medicine> list = new ArrayList<>();
@@ -67,7 +63,6 @@ public class MedicineDAO {
         return list;
     }
 
-    /** Searches medicines by name or generic name (for search bars / barcode lookup). */
     public static List<Medicine> search(String keyword) {
         Connection conn = DatabaseManager.getConnection();
         List<Medicine> list = new ArrayList<>();
@@ -82,9 +77,10 @@ public class MedicineDAO {
             """;
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            String like = "%" + keyword + "%";
+            String like = keyword + "%";
+            String containsLike = "%" + keyword + "%";
             ps.setString(1, like);
-            ps.setString(2, like);
+            ps.setString(2, containsLike);
             ps.setString(3, keyword);
 
             try (ResultSet rs = ps.executeQuery()) {
@@ -98,7 +94,30 @@ public class MedicineDAO {
         return list;
     }
 
-    /** Returns medicines whose total stock is at or below their low-stock threshold. */
+    /** Exact barcode lookup - used when a scan (or manual barcode entry) should immediately identify ONE medicine. */
+    public static Medicine findByBarcode(String barcode) {
+        Connection conn = DatabaseManager.getConnection();
+        String sql = """
+            SELECT m.*, COALESCE(SUM(b.quantity), 0) AS total_stock
+            FROM medicines m
+            LEFT JOIN batches b ON b.medicine_id = m.id
+            WHERE m.barcode = ?
+            GROUP BY m.id
+            """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, barcode);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapRow(rs);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Barcode lookup failed: " + e.getMessage(), e);
+        }
+        return null;
+    }
+
     public static List<Medicine> getLowStockMedicines() {
         Connection conn = DatabaseManager.getConnection();
         List<Medicine> list = new ArrayList<>();
@@ -124,7 +143,6 @@ public class MedicineDAO {
         return list;
     }
 
-    /** Adds a new stock batch for an existing medicine. */
     public static void addBatch(int medicineId, String batchNo, String expiryDate, int quantity, double costPrice) {
         Connection conn = DatabaseManager.getConnection();
         String sql = "INSERT INTO batches (medicine_id, batch_no, expiry_date, quantity, cost_price) VALUES (?, ?, ?, ?, ?)";
@@ -141,7 +159,6 @@ public class MedicineDAO {
         }
     }
 
-    /** Deletes a medicine (and its batches, via ON DELETE CASCADE). */
     public static void deleteMedicine(int medicineId) {
         Connection conn = DatabaseManager.getConnection();
         String sql = "DELETE FROM medicines WHERE id = ?";
@@ -163,6 +180,7 @@ public class MedicineDAO {
         m.setManufacturer(rs.getString("manufacturer"));
         m.setUnit(rs.getString("unit"));
         m.setUnitPrice(rs.getDouble("unit_price"));
+        m.setPackSize(rs.getInt("pack_size"));
         m.setTaxPct(rs.getDouble("tax_pct"));
         m.setControlled(rs.getInt("is_controlled") == 1);
         m.setBarcode(rs.getString("barcode"));

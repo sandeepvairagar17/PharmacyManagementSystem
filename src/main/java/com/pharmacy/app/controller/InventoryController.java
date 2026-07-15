@@ -20,10 +20,11 @@ public class InventoryController {
     @FXML private TableColumn<Medicine, String> nameCol;
     @FXML private TableColumn<Medicine, String> genericCol;
     @FXML private TableColumn<Medicine, String> categoryCol;
-    @FXML private TableColumn<Medicine, String> manufacturerCol;
-    @FXML private TableColumn<Medicine, Double> priceCol;
+    @FXML private TableColumn<Medicine, String> packCol;
+    @FXML private TableColumn<Medicine, Double> unitPriceCol;
+    @FXML private TableColumn<Medicine, String> packPriceCol;
     @FXML private TableColumn<Medicine, Double> taxCol;
-    @FXML private TableColumn<Medicine, Integer> stockCol;
+    @FXML private TableColumn<Medicine, String> stockCol;
     @FXML private TableColumn<Medicine, String> controlledCol;
     @FXML private TableColumn<Medicine, String> barcodeCol;
 
@@ -34,13 +35,17 @@ public class InventoryController {
         nameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         genericCol.setCellValueFactory(new PropertyValueFactory<>("genericName"));
         categoryCol.setCellValueFactory(new PropertyValueFactory<>("category"));
-        manufacturerCol.setCellValueFactory(new PropertyValueFactory<>("manufacturer"));
-        priceCol.setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
+        unitPriceCol.setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
         taxCol.setCellValueFactory(new PropertyValueFactory<>("taxPct"));
-        stockCol.setCellValueFactory(new PropertyValueFactory<>("totalStock"));
         barcodeCol.setCellValueFactory(new PropertyValueFactory<>("barcode"));
 
-        // "Controlled" isn't a simple property - show Yes/No manually
+        packCol.setCellValueFactory(data -> {
+            Medicine m = data.getValue();
+            return new SimpleStringProperty(m.isSplittable() ? m.getPackSize() + " per " + m.getUnit() : m.getUnit());
+        });
+        packPriceCol.setCellValueFactory(data ->
+                new SimpleStringProperty(String.format("%.2f", data.getValue().getPackPrice())));
+        stockCol.setCellValueFactory(data -> new SimpleStringProperty(data.getValue().getStockDisplay()));
         controlledCol.setCellValueFactory(data ->
                 new SimpleStringProperty(data.getValue().isControlled() ? "Yes" : "No"));
 

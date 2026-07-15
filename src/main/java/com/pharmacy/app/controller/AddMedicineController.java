@@ -15,7 +15,8 @@ public class AddMedicineController {
     @FXML private TextField categoryField;
     @FXML private TextField manufacturerField;
     @FXML private TextField unitField;
-    @FXML private TextField priceField;
+    @FXML private TextField packSizeField;
+    @FXML private TextField priceField; // this is PACK price (e.g. strip price), not per-unit
     @FXML private TextField taxField;
     @FXML private TextField barcodeField;
     @FXML private TextField thresholdField;
@@ -28,21 +29,31 @@ public class AddMedicineController {
         String priceText = priceField.getText().trim();
 
         if (name.isEmpty() || priceText.isEmpty()) {
-            errorLabel.setText("Name and Unit Price are required.");
+            errorLabel.setText("Name and Pack Price are required.");
             return;
         }
 
-        double price;
+        double packPrice;
         double tax;
         int threshold;
+        int packSize;
         try {
-            price = Double.parseDouble(priceText);
+            packPrice = Double.parseDouble(priceText);
             tax = taxField.getText().trim().isEmpty() ? 0 : Double.parseDouble(taxField.getText().trim());
             threshold = thresholdField.getText().trim().isEmpty() ? 10 : Integer.parseInt(thresholdField.getText().trim());
+            packSize = packSizeField.getText().trim().isEmpty() ? 1 : Integer.parseInt(packSizeField.getText().trim());
         } catch (NumberFormatException e) {
-            errorLabel.setText("Price, Tax, and Threshold must be valid numbers.");
+            errorLabel.setText("Pack Price, Tax, Threshold, and Units per Pack must be valid numbers.");
             return;
         }
+
+        if (packSize <= 0) {
+            errorLabel.setText("Units per Pack must be at least 1.");
+            return;
+        }
+
+        // Store price PER SMALLEST UNIT internally - derived from the pack price the pharmacist entered.
+        double perUnitPrice = packPrice / packSize;
 
         Medicine m = new Medicine();
         m.setName(name);
@@ -50,7 +61,8 @@ public class AddMedicineController {
         m.setCategory(categoryField.getText().trim());
         m.setManufacturer(manufacturerField.getText().trim());
         m.setUnit(unitField.getText().trim().isEmpty() ? "strip" : unitField.getText().trim());
-        m.setUnitPrice(price);
+        m.setPackSize(packSize);
+        m.setUnitPrice(perUnitPrice);
         m.setTaxPct(tax);
         m.setControlled(controlledCheckBox.isSelected());
         m.setBarcode(barcodeField.getText().trim().isEmpty() ? null : barcodeField.getText().trim());

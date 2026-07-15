@@ -9,11 +9,15 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox spacing="12" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+<VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
       fx:controller="com.pharmacy.app.controller.AddBatchController">
     <padding>
-        <Insets top="30" right="40" bottom="30" left="40"/>
+        <Insets top="15" right="40" bottom="30" left="40"/>
     </padding>
+
+    <HBox>
+        <Button text="&#8592; Back" onAction="#handleCancel"/>
+    </HBox>
 
     <Label fx:id="titleLabel" text="Add Stock Batch" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
 
@@ -24,12 +28,14 @@
         <Label text="Expiry Date*" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
         <DatePicker fx:id="expiryDatePicker" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-        <Label text="Quantity*" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+        <Label fx:id="quantityLabel" text="Quantity Received (in packs)*" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
         <TextField fx:id="quantityField" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-        <Label text="Cost Price (per unit)" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+        <Label text="Cost Price (per pack, from supplier)" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
         <TextField fx:id="costPriceField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
     </GridPane>
+
+    <Label fx:id="conversionLabel" style="-fx-text-fill: #666; -fx-font-size: 12px;"/>
 
     <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
 

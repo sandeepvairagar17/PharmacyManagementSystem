@@ -34,27 +34,33 @@
         <Label text="Manufacturer" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
         <TextField fx:id="manufacturerField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
-        <Label text="Unit (e.g. strip, bottle)" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
+        <Label text="Pack Label (e.g. strip, bottle, box)" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
         <TextField fx:id="unitField" GridPane.rowIndex="4" GridPane.columnIndex="1" text="strip"/>
 
-        <Label text="Unit Price*" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-        <TextField fx:id="priceField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
+        <Label text="Units per Pack (e.g. 10 tablets per strip)" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+        <TextField fx:id="packSizeField" GridPane.rowIndex="5" GridPane.columnIndex="1" text="10"/>
 
-        <Label text="Tax % (GST)" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
-        <TextField fx:id="taxField" GridPane.rowIndex="6" GridPane.columnIndex="1" text="5"/>
+        <Label text="Pack Price* (e.g. price of ONE strip)" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+        <TextField fx:id="priceField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
-        <Label text="Barcode" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-        <TextField fx:id="barcodeField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
+        <Label text="Tax % (GST)" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
+        <TextField fx:id="taxField" GridPane.rowIndex="7" GridPane.columnIndex="1" text="5"/>
 
-        <Label text="Low Stock Alert Threshold" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
-        <TextField fx:id="thresholdField" GridPane.rowIndex="8" GridPane.columnIndex="1" text="10"/>
+        <Label text="Barcode" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
+        <TextField fx:id="barcodeField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
 
-        <Label text="Controlled Drug?" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-        <CheckBox fx:id="controlledCheckBox" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
+        <Label text="Low Stock Alert Threshold" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
+        <TextField fx:id="thresholdField" GridPane.rowIndex="9" GridPane.columnIndex="1" text="10"/>
+
+        <Label text="Controlled Drug?" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
+        <CheckBox fx:id="controlledCheckBox" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
     </GridPane>
 
-    <Label text="GST guide (as of the 2025 reform): most medicines = 5%, life-saving/notified drugs = 0% (exempt), nicotine gum/APIs = 18%. Verify per-product with your CA/GST portal."
-           wrapText="true" style="-fx-text-fill: #666; -fx-font-size: 11px;" maxWidth="450"/>
+    <Label text="Example: Crocin strip has 10 tablets, strip price ₹10 -&#62; set 'Units per Pack' = 10, 'Pack Price' = 10. The system auto-calculates the per-tablet price (₹1) for loose sales. If this medicine is never split (e.g. a bottle of syrup), leave Units per Pack = 1."
+           wrapText="true" style="-fx-text-fill: #666; -fx-font-size: 11px;" maxWidth="480"/>
+
+    <Label text="GST guide (2025 reform): most medicines = 5%, life-saving/notified drugs = 0% (exempt), nicotine gum/APIs = 18%. Verify per-product with your CA/GST portal."
+           wrapText="true" style="-fx-text-fill: #666; -fx-font-size: 11px;" maxWidth="480"/>
 
     <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
 

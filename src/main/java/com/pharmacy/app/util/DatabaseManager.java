@@ -11,27 +11,27 @@ import java.sql.Statement;
  */
 public class DatabaseManager {
 
-    private static final String DB_FILE = "pharmacy.db";
-    private static final String DB_URL = "jdbc:sqlite:" + DB_FILE;
-
+    private static String dbFile = "pharmacy.db";
     private static Connection connection;
 
     public static String getDbFilePath() {
-        return DB_FILE;
+        return dbFile;
     }
 
-    /**
-     * Returns a single shared connection to the SQLite database.
-     * Creates the file and tables automatically on first run.
-     */
+    public static void setDbFileForTesting(String testFilePath) {
+        resetConnection();
+        dbFile = testFilePath;
+    }
+
     public static Connection getConnection() {
         if (connection == null) {
             try {
-                connection = DriverManager.getConnection(DB_URL);
+                connection = DriverManager.getConnection("jdbc:sqlite:" + dbFile);
                 try (Statement stmt = connection.createStatement()) {
                     stmt.execute("PRAGMA foreign_keys = ON;");
                 }
                 initializeSchema(connection);
+                runMigrations(connection);
             } catch (SQLException e) {
                 throw new RuntimeException("Failed to connect to database: " + e.getMessage(), e);
             }
@@ -39,11 +39,6 @@ public class DatabaseManager {
         return connection;
     }
 
-    /**
-     * Closes the current connection and clears the cached reference,
-     * so the next call to getConnection() opens a fresh connection to whatever
-     * is currently in the database file. Used after restoring from a backup.
-     */
     public static void resetConnection() {
         closeConnection();
         connection = null;
@@ -85,6 +80,7 @@ public class DatabaseManager {
                 manufacturer TEXT,
                 unit TEXT NOT NULL DEFAULT 'strip',
                 unit_price REAL NOT NULL DEFAULT 0,
+                pack_size INTEGER NOT NULL DEFAULT 1,
                 tax_pct REAL NOT NULL DEFAULT 0,
                 is_controlled INTEGER NOT NULL DEFAULT 0,
                 barcode TEXT UNIQUE,
@@ -216,6 +212,23 @@ public class DatabaseManager {
             for (String sql : createStatements) {
                 stmt.execute(sql);
             }
+        }
+    }
+
+    /**
+     * Handles schema changes for databases created by an earlier version of the app
+     * (e.g. adding pack_size to an existing medicines table). Safe to run every startup -
+     * silently does nothing if the column already exists.
+     */
+    private static void runMigrations(Connection conn) {
+        tryAddColumn(conn, "medicines", "pack_size", "INTEGER NOT NULL DEFAULT 1");
+    }
+
+    private static void tryAddColumn(Connection conn, String table, String column, String definition) {
+        try (Statement stmt = conn.createStatement()) {
+            stmt.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + definition);
+        } catch (SQLException e) {
+            // Column already exists - expected on every run after the first. Safe to ignore.
         }
     }
 

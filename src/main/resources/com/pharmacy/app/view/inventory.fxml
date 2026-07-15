@@ -35,13 +35,14 @@
         <TableView fx:id="medicineTable">
             <columns>
                 <TableColumn fx:id="nameCol" text="Name" prefWidth="150"/>
-                <TableColumn fx:id="genericCol" text="Generic Name" prefWidth="130"/>
-                <TableColumn fx:id="categoryCol" text="Category" prefWidth="100"/>
-                <TableColumn fx:id="manufacturerCol" text="Manufacturer" prefWidth="120"/>
-                <TableColumn fx:id="priceCol" text="Unit Price" prefWidth="80"/>
-                <TableColumn fx:id="taxCol" text="Tax %" prefWidth="60"/>
-                <TableColumn fx:id="stockCol" text="Total Stock" prefWidth="90"/>
-                <TableColumn fx:id="controlledCol" text="Controlled" prefWidth="80"/>
+                <TableColumn fx:id="genericCol" text="Generic Name" prefWidth="120"/>
+                <TableColumn fx:id="categoryCol" text="Category" prefWidth="90"/>
+                <TableColumn fx:id="packCol" text="Pack" prefWidth="90"/>
+                <TableColumn fx:id="unitPriceCol" text="Price/Unit" prefWidth="80"/>
+                <TableColumn fx:id="packPriceCol" text="Price/Pack" prefWidth="80"/>
+                <TableColumn fx:id="taxCol" text="Tax %" prefWidth="55"/>
+                <TableColumn fx:id="stockCol" text="Stock (Total Units)" prefWidth="180"/>
+                <TableColumn fx:id="controlledCol" text="Controlled" prefWidth="75"/>
                 <TableColumn fx:id="barcodeCol" text="Barcode" prefWidth="100"/>
             </columns>
         </TableView>

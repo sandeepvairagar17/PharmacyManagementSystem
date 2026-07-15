@@ -1,22 +1,20 @@
 package com.pharmacy.app.model;
 
-/**
- * Represents one line in the billing cart (UI-only, not a database entity).
- * Actual batch selection/deduction happens at checkout time in SaleDAO.
- */
 public class CartItem {
 
     private int medicineId;
-    private String name;
-    private double unitPrice;
+    private String name;         // plain medicine name, used for lookups
+    private String displayName;  // what shows in the cart table, e.g. "Crocin (2 strips)" or "Crocin (3 loose)"
+    private double unitPrice;    // price per SMALLEST unit
     private double taxPct;
-    private int availableStock;
+    private int availableStock;  // in smallest units
     private boolean controlled;
-    private int quantity;
+    private int quantity;        // in SMALLEST units - this is what actually gets deducted from stock
 
     public CartItem(int medicineId, String name, double unitPrice, double taxPct, int availableStock, boolean controlled) {
         this.medicineId = medicineId;
         this.name = name;
+        this.displayName = name;
         this.unitPrice = unitPrice;
         this.taxPct = taxPct;
         this.availableStock = availableStock;
@@ -25,7 +23,9 @@ public class CartItem {
     }
 
     public int getMedicineId() { return medicineId; }
-    public String getName() { return name; }
+    public String getName() { return displayName != null ? displayName : name; }
+    public String getPlainName() { return name; }
+    public void setDisplayName(String displayName) { this.displayName = displayName; }
     public double getUnitPrice() { return unitPrice; }
     public double getTaxPct() { return taxPct; }
     public int getAvailableStock() { return availableStock; }
