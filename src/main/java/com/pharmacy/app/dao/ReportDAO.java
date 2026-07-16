@@ -135,6 +135,7 @@ public class ReportDAO {
         }
 
         lines.add("-".repeat(66));
+        //lines.add("-".repeat(66));
         lines.add(String.format("Total Inventory Value: %.2f", grandTotal));
         return lines;
     }
