@@ -22,8 +22,7 @@
             </HBox>
             <Label text="&#128138; Inventory" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
             <HBox spacing="10">
-                <TextField fx:id="searchField" promptText="Search by name, generic name, or barcode..." prefWidth="350"/>
-                <Button text="Search" onAction="#handleSearch"/>
+                <TextField fx:id="searchField" promptText="Type to search by name, generic name, or barcode..." prefWidth="350"/>
                 <Button text="Clear" onAction="#handleClear"/>
                 <Button text="+ Add Medicine" onAction="#handleAddMedicine" style="-fx-font-weight: bold;"/>
                 <Button text="+ Add Stock Batch" onAction="#handleAddBatch"/>
@@ -34,16 +33,17 @@
     <center>
         <TableView fx:id="medicineTable">
             <columns>
-                <TableColumn fx:id="nameCol" text="Name" prefWidth="150"/>
-                <TableColumn fx:id="genericCol" text="Generic Name" prefWidth="120"/>
-                <TableColumn fx:id="categoryCol" text="Category" prefWidth="90"/>
-                <TableColumn fx:id="packCol" text="Pack" prefWidth="90"/>
-                <TableColumn fx:id="unitPriceCol" text="Price/Unit" prefWidth="80"/>
-                <TableColumn fx:id="packPriceCol" text="Price/Pack" prefWidth="80"/>
-                <TableColumn fx:id="taxCol" text="Tax %" prefWidth="55"/>
-                <TableColumn fx:id="stockCol" text="Stock (Total Units)" prefWidth="180"/>
-                <TableColumn fx:id="controlledCol" text="Controlled" prefWidth="75"/>
-                <TableColumn fx:id="barcodeCol" text="Barcode" prefWidth="100"/>
+                <TableColumn fx:id="nameCol" text="Name" prefWidth="140"/>
+                <TableColumn fx:id="genericCol" text="Generic Name" prefWidth="110"/>
+                <TableColumn fx:id="categoryCol" text="Category" prefWidth="85"/>
+                <TableColumn fx:id="packCol" text="Pack" prefWidth="85"/>
+                <TableColumn fx:id="unitPriceCol" text="Price/Unit" prefWidth="75"/>
+                <TableColumn fx:id="packPriceCol" text="Price/Pack" prefWidth="75"/>
+                <TableColumn fx:id="taxCol" text="Tax %" prefWidth="50"/>
+                <TableColumn fx:id="stockCol" text="Stock" prefWidth="160"/>
+                <TableColumn fx:id="controlledCol" text="Controlled" prefWidth="70"/>
+                <TableColumn fx:id="barcodeCol" text="Barcode" prefWidth="95"/>
+                <TableColumn fx:id="actionsCol" text="Actions" prefWidth="150"/>
             </columns>
         </TableView>
     </center>

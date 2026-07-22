@@ -23,14 +23,15 @@
 
     <HBox spacing="10" alignment="CENTER_LEFT">
         <Label text="Patient:"/>
-        <ComboBox fx:id="patientBox" prefWidth="220"/>
-        <Label text="Doctor Name:"/>
-        <TextField fx:id="doctorField" prefWidth="180"/>
+        <ComboBox fx:id="patientBox" prefWidth="200"/>
+        <Label text="Doctor:"/>
+        <ComboBox fx:id="doctorBox" prefWidth="220" promptText="Select doctor..."/>
+        <Button text="+ Add Doctor" onAction="#handleAddDoctor"/>
     </HBox>
 
     <Label text="Add Medicines to Prescription:" style="-fx-font-weight: bold;"/>
     <HBox spacing="10" alignment="CENTER_LEFT">
-        <TextField fx:id="medicineSearchField" promptText="Type medicine name..." prefWidth="220"/>
+        <TextField fx:id="medicineSearchField" promptText="Type medicine name, press Enter to select top match..." prefWidth="260"/>
         <TextField fx:id="dosageField" promptText="Dosage (e.g. 1-0-1 after food)" prefWidth="200"/>
         <TextField fx:id="quantityField" promptText="Qty" prefWidth="60"/>
         <Button text="Add Item" onAction="#handleAddItem"/>

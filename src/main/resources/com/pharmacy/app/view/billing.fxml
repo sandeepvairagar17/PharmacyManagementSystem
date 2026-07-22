@@ -23,8 +23,12 @@
                 <Button text="&#8592; Back" onAction="#handleBack"/>
             </HBox>
             <Label text="&#128176; Billing / New Sale" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <HBox spacing="10" alignment="CENTER_LEFT">
+                <Label text="Customer:"/>
+                <ComboBox fx:id="patientBox" prefWidth="220" promptText="Walk-in Customer"/>
+            </HBox>
             <HBox spacing="10">
-                <TextField fx:id="searchField" promptText="Type medicine name or scan barcode..." prefWidth="350"/>
+                <TextField fx:id="searchField" promptText="Type medicine name and press Enter, or scan barcode..." prefWidth="380"/>
             </HBox>
             <ListView fx:id="suggestionsList" prefHeight="110" visible="false" managed="false"/>
         </VBox>
@@ -33,11 +37,11 @@
     <center>
         <TableView fx:id="cartTable">
             <columns>
-                <TableColumn fx:id="cartNameCol" text="Medicine" prefWidth="200"/>
-                <TableColumn fx:id="cartQtyCol" text="Qty" prefWidth="80"/>
+                <TableColumn fx:id="cartNameCol" text="Medicine" prefWidth="220"/>
+                <TableColumn fx:id="cartQtyCol" text="Qty" prefWidth="70"/>
                 <TableColumn fx:id="cartPriceCol" text="Unit Price" prefWidth="90"/>
-                <TableColumn fx:id="cartTaxCol" text="Tax %" prefWidth="70"/>
-                <TableColumn fx:id="cartLineTotalCol" text="Line Total" prefWidth="100"/>
+                <TableColumn fx:id="cartTaxCol" text="Tax %" prefWidth="65"/>
+                <TableColumn fx:id="cartLineTotalCol" text="Line Total" prefWidth="95"/>
                 <TableColumn fx:id="cartRemoveCol" text="" prefWidth="80"/>
             </columns>
         </TableView>

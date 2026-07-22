@@ -1,9 +1,11 @@
 package com.pharmacy.app.controller;
 
 import com.pharmacy.app.dao.MedicineDAO;
+import com.pharmacy.app.dao.PatientDAO;
 import com.pharmacy.app.dao.SaleDAO;
 import com.pharmacy.app.model.CartItem;
 import com.pharmacy.app.model.Medicine;
+import com.pharmacy.app.model.Patient;
 import com.pharmacy.app.model.User;
 import com.pharmacy.app.util.SceneManager;
 import com.pharmacy.app.util.SessionManager;
@@ -23,6 +25,7 @@ import java.util.Optional;
 
 public class BillingController {
 
+    @FXML private ComboBox<Patient> patientBox;
     @FXML private TextField searchField;
     @FXML private ListView<Medicine> suggestionsList;
 
@@ -43,10 +46,11 @@ public class BillingController {
     @FXML private Label errorLabel;
 
     private final ObservableList<CartItem> cart = FXCollections.observableArrayList();
+    private List<Medicine> currentSuggestions = List.of();
 
     @FXML
     public void initialize() {
-        cartNameCol.setCellValueFactory(new PropertyValueFactory<>("name")); // uses getName() -> displayName
+        cartNameCol.setCellValueFactory(new PropertyValueFactory<>("name"));
         cartQtyCol.setCellValueFactory(new PropertyValueFactory<>("quantity"));
         cartPriceCol.setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
         cartTaxCol.setCellValueFactory(new PropertyValueFactory<>("taxPct"));
@@ -61,33 +65,14 @@ public class BillingController {
         paymentModeBox.setItems(FXCollections.observableArrayList("CASH", "CARD", "UPI", "OTHER"));
         paymentModeBox.getSelectionModel().selectFirst();
 
+        patientBox.setItems(FXCollections.observableArrayList(PatientDAO.getAllPatients()));
+        // No selection = walk-in customer, which is fine
+
         discountField.textProperty().addListener((obs, oldVal, newVal) -> recalcTotals());
 
         setupAutocomplete();
-        setupBarcodeScan();
+        setupEnterKeyHandling();
         recalcTotals();
-    }
-
-    /**
-     * A barcode scanner behaves like a keyboard: it types the code into whatever
-     * field is focused, then sends Enter. This handles that Enter keystroke -
-     * if the scanned code exactly matches a medicine's barcode, add it straight
-     * to the cart (skip needing to click a suggestion, since speed matters at checkout).
-     */
-    private void setupBarcodeScan() {
-        searchField.setOnAction(event -> {
-            String code = searchField.getText().trim();
-            if (code.isEmpty()) return;
-
-            Medicine exactMatch = MedicineDAO.findByBarcode(code);
-            if (exactMatch != null) {
-                hideSuggestions();
-                searchField.clear();
-                promptSaleDetailsAndAdd(exactMatch);
-            } else {
-                errorLabel.setText("No medicine found with barcode \"" + code + "\". Check it was scanned/entered correctly, or add it via Inventory.");
-            }
-        });
     }
 
     private void setupAutocomplete() {
@@ -106,14 +91,15 @@ public class BillingController {
         searchField.textProperty().addListener((obs, oldVal, newVal) -> {
             String keyword = newVal.trim();
             if (keyword.isEmpty()) {
+                currentSuggestions = List.of();
                 hideSuggestions();
                 return;
             }
-            List<Medicine> matches = MedicineDAO.search(keyword);
-            if (matches.isEmpty()) {
+            currentSuggestions = MedicineDAO.search(keyword);
+            if (currentSuggestions.isEmpty()) {
                 hideSuggestions();
             } else {
-                suggestionsList.setItems(FXCollections.observableArrayList(matches));
+                suggestionsList.setItems(FXCollections.observableArrayList(currentSuggestions));
                 showSuggestions();
             }
         });
@@ -128,41 +114,37 @@ public class BillingController {
                 }
             }
         });
-
-        // Real barcode scanners "type" the code then send Enter automatically -
-        // this makes scan-and-go actually work, not just manual clicking.
-        searchField.setOnAction(event -> handleEnterKey());
     }
 
-    private void handleEnterKey() {
-        String keyword = searchField.getText().trim();
-        if (keyword.isEmpty()) return;
+    /**
+     * Handles pressing Enter in the search field - the key behavior for both
+     * barcode scanners (which type + Enter automatically) AND fast manual typing
+     * (e.g. type "Dolo 250" and press Enter instead of reaching for the mouse).
+     * Priority: exact barcode match first, then the top name-search suggestion.
+     */
+    private void setupEnterKeyHandling() {
+        searchField.setOnAction(event -> {
+            String code = searchField.getText().trim();
+            if (code.isEmpty()) return;
 
-        List<Medicine> matches = MedicineDAO.search(keyword);
+            Medicine exactBarcodeMatch = MedicineDAO.findByBarcode(code);
+            if (exactBarcodeMatch != null) {
+                hideSuggestions();
+                searchField.clear();
+                promptSaleDetailsAndAdd(exactBarcodeMatch);
+                return;
+            }
 
-        // Prefer an EXACT barcode match first (this is what a real scan produces)
-        Medicine exactBarcodeMatch = matches.stream()
-                .filter(m -> keyword.equals(m.getBarcode()))
-                .findFirst()
-                .orElse(null);
+            if (!currentSuggestions.isEmpty()) {
+                Medicine topMatch = currentSuggestions.get(0);
+                hideSuggestions();
+                searchField.clear();
+                promptSaleDetailsAndAdd(topMatch);
+                return;
+            }
 
-        if (exactBarcodeMatch != null) {
-            hideSuggestions();
-            searchField.clear();
-            promptSaleDetailsAndAdd(exactBarcodeMatch);
-            return;
-        }
-
-        // No exact barcode match - if there's exactly one name match, use it;
-        // otherwise leave the suggestion list open for the user to pick manually.
-        if (matches.size() == 1) {
-            hideSuggestions();
-            searchField.clear();
-            promptSaleDetailsAndAdd(matches.get(0));
-        } else if (matches.isEmpty()) {
-            errorLabel.setText("No medicine found matching \"" + keyword + "\". If this was a barcode scan, check the barcode is saved on a medicine in Inventory.");
-        }
-        // if multiple matches, do nothing extra - suggestion list is already showing them
+            errorLabel.setText("No medicine found matching \"" + code + "\".");
+        });
     }
 
     private void showSuggestions() {
@@ -193,11 +175,6 @@ public class BillingController {
         cartRemoveCol.setCellFactory(cellFactory);
     }
 
-    /**
-     * Shows a dialog asking HOW to sell this medicine: as whole packs (e.g. strips)
-     * or as loose individual units (e.g. single tablets) - only offered if the
-     * medicine's pack size supports splitting. Converts to base units before adding to cart.
-     */
     private void promptSaleDetailsAndAdd(Medicine medicine) {
         errorLabel.setText("");
 
@@ -234,12 +211,13 @@ public class BillingController {
             grid.add(new Label("Quantity:"), 0, 2);
             grid.add(qtyField, 1, 2);
         } else {
-            // Not splittable (e.g. a bottle of syrup) - just ask quantity, always "packs" of 1 unit each
             grid.add(new Label("Quantity:"), 0, 0);
             grid.add(qtyField, 1, 0);
         }
 
         dialog.getDialogPane().setContent(grid);
+        qtyField.requestFocus();
+        qtyField.selectAll();
 
         Optional<ButtonType> result = dialog.showAndWait();
         if (result.isEmpty() || result.get() != addButtonType) return;
@@ -278,7 +256,6 @@ public class BillingController {
             }
         }
 
-        // If this exact medicine is already in the cart, merge quantities
         for (CartItem existing : cart) {
             if (existing.getMedicineId() == medicine.getId()) {
                 int newQty = existing.getQuantity() + baseUnitsToAdd;
@@ -337,8 +314,11 @@ public class BillingController {
         String paymentMode = paymentModeBox.getValue();
         User currentUser = SessionManager.getCurrentUser();
 
+        Patient selectedPatient = patientBox.getValue();
+        Integer patientId = selectedPatient != null ? selectedPatient.getId() : null;
+
         try {
-            int saleId = SaleDAO.checkout(null, null, cart, discountAmount, paymentMode, currentUser.getId());
+            int saleId = SaleDAO.checkout(patientId, null, cart, discountAmount, paymentMode, currentUser.getId());
 
             Alert success = new Alert(Alert.AlertType.INFORMATION);
             success.setTitle("Sale Complete");
@@ -348,6 +328,7 @@ public class BillingController {
 
             cart.clear();
             discountField.setText("0");
+            patientBox.getSelectionModel().clearSelection();
             recalcTotals();
 
         } catch (SaleDAO.InsufficientStockException e) {

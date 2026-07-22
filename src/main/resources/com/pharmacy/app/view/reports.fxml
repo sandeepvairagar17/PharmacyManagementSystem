@@ -33,6 +33,7 @@
                 <Button text="Low Stock Report" onAction="#handleLowStockReport"/>
                 <Button text="Expiry Report (next 60 days)" onAction="#handleExpiryReport"/>
                 <Button text="Inventory Valuation" onAction="#handleValuationReport"/>
+                <Button text="&#128438; Print / Save as PDF" onAction="#handlePrint" style="-fx-font-weight: bold;"/>
             </HBox>
         </VBox>
     </top>

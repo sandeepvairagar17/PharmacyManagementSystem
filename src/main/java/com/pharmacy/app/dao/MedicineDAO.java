@@ -159,6 +159,33 @@ public class MedicineDAO {
         }
     }
 
+    public static void updateMedicine(Medicine m) {
+        Connection conn = DatabaseManager.getConnection();
+        String sql = """
+            UPDATE medicines SET name=?, generic_name=?, category=?, manufacturer=?, unit=?,
+                   unit_price=?, pack_size=?, tax_pct=?, is_controlled=?, barcode=?, low_stock_threshold=?
+            WHERE id=?
+            """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, m.getName());
+            ps.setString(2, m.getGenericName());
+            ps.setString(3, m.getCategory());
+            ps.setString(4, m.getManufacturer());
+            ps.setString(5, m.getUnit());
+            ps.setDouble(6, m.getUnitPrice());
+            ps.setInt(7, m.getPackSize());
+            ps.setDouble(8, m.getTaxPct());
+            ps.setInt(9, m.isControlled() ? 1 : 0);
+            ps.setString(10, m.getBarcode());
+            ps.setInt(11, m.getLowStockThreshold());
+            ps.setInt(12, m.getId());
+            ps.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update medicine: " + e.getMessage(), e);
+        }
+    }
+
     public static void deleteMedicine(int medicineId) {
         Connection conn = DatabaseManager.getConnection();
         String sql = "DELETE FROM medicines WHERE id = ?";

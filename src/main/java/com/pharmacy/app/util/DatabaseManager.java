@@ -5,10 +5,6 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-/**
- * Handles the SQLite database connection and schema creation.
- * Single database file stored alongside the application (offline, local-first).
- */
 public class DatabaseManager {
 
     private static String dbFile = "pharmacy.db";
@@ -85,6 +81,7 @@ public class DatabaseManager {
                 is_controlled INTEGER NOT NULL DEFAULT 0,
                 barcode TEXT UNIQUE,
                 low_stock_threshold INTEGER NOT NULL DEFAULT 10,
+                is_active INTEGER NOT NULL DEFAULT 1,
                 created_at TEXT NOT NULL DEFAULT (datetime('now'))
             );
             """,
@@ -110,6 +107,16 @@ public class DatabaseManager {
                 dob TEXT,
                 allergies TEXT,
                 notes TEXT,
+                created_at TEXT NOT NULL DEFAULT (datetime('now'))
+            );
+            """,
+
+                """
+            CREATE TABLE IF NOT EXISTS doctors (
+                id INTEGER PRIMARY KEY AUTOINCREMENT,
+                name TEXT NOT NULL,
+                specialization TEXT,
+                phone TEXT,
                 created_at TEXT NOT NULL DEFAULT (datetime('now'))
             );
             """,
@@ -215,20 +222,16 @@ public class DatabaseManager {
         }
     }
 
-    /**
-     * Handles schema changes for databases created by an earlier version of the app
-     * (e.g. adding pack_size to an existing medicines table). Safe to run every startup -
-     * silently does nothing if the column already exists.
-     */
     private static void runMigrations(Connection conn) {
         tryAddColumn(conn, "medicines", "pack_size", "INTEGER NOT NULL DEFAULT 1");
+        tryAddColumn(conn, "medicines", "is_active", "INTEGER NOT NULL DEFAULT 1");
     }
 
     private static void tryAddColumn(Connection conn, String table, String column, String definition) {
         try (Statement stmt = conn.createStatement()) {
             stmt.execute("ALTER TABLE " + table + " ADD COLUMN " + column + " " + definition);
         } catch (SQLException e) {
-            // Column already exists - expected on every run after the first. Safe to ignore.
+            // Already exists - expected after the first run
         }
     }
 

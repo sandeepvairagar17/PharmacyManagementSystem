@@ -110,4 +110,36 @@ public class PrescriptionDAO {
         }
         return list;
     }
+
+    /** Returns all prescriptions for one specific patient, most recent first. */
+    public static List<Prescription> getPrescriptionsForPatient(int patientId) {
+        Connection conn = DatabaseManager.getConnection();
+        List<Prescription> list = new ArrayList<>();
+
+        String sql = """
+            SELECT pr.id, pr.patient_id, p.name AS patient_name, pr.doctor_name, pr.prescription_date
+            FROM prescriptions pr
+            JOIN patients p ON p.id = pr.patient_id
+            WHERE pr.patient_id = ?
+            ORDER BY pr.prescription_date DESC
+            """;
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, patientId);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    Prescription pr = new Prescription();
+                    pr.setId(rs.getInt("id"));
+                    pr.setPatientId(rs.getInt("patient_id"));
+                    pr.setPatientName(rs.getString("patient_name"));
+                    pr.setDoctorName(rs.getString("doctor_name"));
+                    pr.setPrescriptionDate(rs.getString("prescription_date"));
+                    list.add(pr);
+                }
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch patient prescriptions: " + e.getMessage(), e);
+        }
+        return list;
+    }
 }

@@ -4,6 +4,7 @@ import com.pharmacy.app.dao.PatientDAO;
 import com.pharmacy.app.model.Patient;
 import com.pharmacy.app.util.SceneManager;
 import javafx.fxml.FXML;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.control.TextArea;
 import javafx.scene.control.TextField;
@@ -12,7 +13,7 @@ public class AddPatientController {
 
     @FXML private TextField nameField;
     @FXML private TextField phoneField;
-    @FXML private TextField dobField;
+    @FXML private DatePicker dobPicker;
     @FXML private TextArea allergiesField;
     @FXML private TextArea notesField;
     @FXML private Label errorLabel;
@@ -28,7 +29,7 @@ public class AddPatientController {
         Patient p = new Patient();
         p.setName(name);
         p.setPhone(phoneField.getText().trim());
-        p.setDob(dobField.getText().trim());
+        p.setDob(dobPicker.getValue() != null ? dobPicker.getValue().toString() : null); // stored as ISO yyyy-MM-dd
         p.setAllergies(allergiesField.getText().trim());
         p.setNotes(notesField.getText().trim());
 

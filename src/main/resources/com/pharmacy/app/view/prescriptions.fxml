@@ -22,7 +22,6 @@
             <Label text="&#128203; Prescriptions" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
             <HBox spacing="10">
                 <Button text="+ New Prescription" onAction="#handleNewPrescription" style="-fx-font-weight: bold;"/>
-                <Button text="View Items" onAction="#handleViewItems"/>
             </HBox>
         </VBox>
     </top>
@@ -30,10 +29,11 @@
     <center>
         <TableView fx:id="prescriptionTable">
             <columns>
-                <TableColumn fx:id="idCol" text="ID" prefWidth="50"/>
-                <TableColumn fx:id="patientCol" text="Patient" prefWidth="180"/>
-                <TableColumn fx:id="doctorCol" text="Doctor" prefWidth="180"/>
-                <TableColumn fx:id="dateCol" text="Date" prefWidth="150"/>
+                <TableColumn fx:id="idCol" text="ID" prefWidth="45"/>
+                <TableColumn fx:id="patientCol" text="Patient" prefWidth="160"/>
+                <TableColumn fx:id="doctorCol" text="Doctor" prefWidth="200"/>
+                <TableColumn fx:id="dateCol" text="Date" prefWidth="130"/>
+                <TableColumn fx:id="actionsCol" text="Actions" prefWidth="150"/>
             </columns>
         </TableView>
     </center>

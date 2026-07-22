@@ -3,8 +3,10 @@ package com.pharmacy.app.controller;
 import com.pharmacy.app.dao.MedicineDAO;
 import com.pharmacy.app.dao.ReportDAO;
 import com.pharmacy.app.model.Medicine;
+import com.pharmacy.app.util.PrintUtil;
 import com.pharmacy.app.util.SceneManager;
 import javafx.fxml.FXML;
+import javafx.scene.control.Alert;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.TextArea;
 
@@ -16,6 +18,8 @@ public class ReportsController {
     @FXML private DatePicker fromDatePicker;
     @FXML private DatePicker toDatePicker;
     @FXML private TextArea reportArea;
+
+    private String currentReportTitle = "Report";
 
     @FXML
     public void initialize() {
@@ -38,6 +42,7 @@ public class ReportsController {
         }
 
         List<String> lines = ReportDAO.salesReport(from, to);
+        currentReportTitle = "Sales Report (" + from + " to " + to + ")";
         reportArea.setText("SALES REPORT: " + from + " to " + to + "\n\n" + String.join("\n", lines));
     }
 
@@ -55,19 +60,35 @@ public class ReportsController {
                 sb.append(String.format("%-30s %-12d %-12d\n", m.getName(), m.getTotalStock(), m.getLowStockThreshold()));
             }
         }
+        currentReportTitle = "Low Stock Report";
         reportArea.setText(sb.toString());
     }
 
     @FXML
     private void handleExpiryReport() {
         List<String> lines = ReportDAO.expiringBatchesReport(60);
+        currentReportTitle = "Expiry Report";
         reportArea.setText("EXPIRY REPORT (next 60 days)\n\n" + String.join("\n", lines));
     }
 
     @FXML
     private void handleValuationReport() {
         List<String> lines = ReportDAO.inventoryValuationReport();
+        currentReportTitle = "Inventory Valuation Report";
         reportArea.setText("INVENTORY VALUATION REPORT\n\n" + String.join("\n", lines));
+    }
+
+    @FXML
+    private void handlePrint() {
+        String content = reportArea.getText();
+        if (content == null || content.isBlank()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setHeaderText(null);
+            alert.setContentText("Generate a report first before printing.");
+            alert.showAndWait();
+            return;
+        }
+        PrintUtil.printText(currentReportTitle, content, reportArea.getScene().getWindow());
     }
 
     @FXML

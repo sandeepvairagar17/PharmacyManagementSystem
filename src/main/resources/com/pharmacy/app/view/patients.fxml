@@ -22,8 +22,7 @@
             </HBox>
             <Label text="&#128100; Patients" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
             <HBox spacing="10">
-                <TextField fx:id="searchField" promptText="Search by name or phone..." prefWidth="300"/>
-                <Button text="Search" onAction="#handleSearch"/>
+                <TextField fx:id="searchField" promptText="Type to search by name or phone..." prefWidth="300"/>
                 <Button text="Clear" onAction="#handleClear"/>
                 <Button text="+ Add Patient" onAction="#handleAddPatient" style="-fx-font-weight: bold;"/>
             </HBox>
@@ -33,11 +32,12 @@
     <center>
         <TableView fx:id="patientTable">
             <columns>
-                <TableColumn fx:id="nameCol" text="Name" prefWidth="180"/>
-                <TableColumn fx:id="phoneCol" text="Phone" prefWidth="130"/>
+                <TableColumn fx:id="nameCol" text="Name" prefWidth="160"/>
+                <TableColumn fx:id="phoneCol" text="Phone" prefWidth="120"/>
                 <TableColumn fx:id="dobCol" text="DOB" prefWidth="100"/>
-                <TableColumn fx:id="allergiesCol" text="Allergies" prefWidth="200"/>
-                <TableColumn fx:id="notesCol" text="Notes" prefWidth="200"/>
+                <TableColumn fx:id="allergiesCol" text="Allergies" prefWidth="160"/>
+                <TableColumn fx:id="notesCol" text="Notes" prefWidth="160"/>
+                <TableColumn fx:id="actionsCol" text="Actions" prefWidth="220"/>
             </columns>
         </TableView>
     </center>

@@ -10,7 +10,7 @@
 <?import javafx.scene.layout.VBox?>
 
 <VBox spacing="10" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
-      fx:controller="com.pharmacy.app.controller.AddMedicineController">
+      fx:controller="com.pharmacy.app.controller.EditMedicineController">
     <padding>
         <Insets top="15" right="40" bottom="30" left="40"/>
     </padding>
@@ -20,14 +20,14 @@
     </HBox>
 
     <HBox spacing="30">
-        <VBox alignment="CENTER" spacing="10" prefWidth="200" style="-fx-background-color: #eef7ee; -fx-background-radius: 14;">
+        <VBox alignment="CENTER" spacing="10" prefWidth="200" style="-fx-background-color: #eef2f7; -fx-background-radius: 14;">
             <padding><Insets top="40" bottom="40"/></padding>
-            <Label text="&#128138;" style="-fx-font-size: 72px;"/>
-            <Label text="Add a medicine to your catalog, then add stock batches for it in Inventory" style="-fx-text-fill: #566; -fx-font-size: 12px;" wrapText="true" textAlignment="CENTER" maxWidth="160"/>
+            <Label text="&#9999;" style="-fx-font-size: 72px;"/>
+            <Label text="Update this medicine's details" style="-fx-text-fill: #566; -fx-font-size: 12px;" wrapText="true" textAlignment="CENTER" maxWidth="160"/>
         </VBox>
 
         <VBox spacing="10">
-            <Label text="Add New Medicine" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
+            <Label text="Edit Medicine" style="-fx-font-size: 20px; -fx-font-weight: bold;"/>
 
             <GridPane hgap="10" vgap="10">
                 <Label text="Name*" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
@@ -43,34 +43,34 @@
                 <TextField fx:id="manufacturerField" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
 
                 <Label text="Pack Label (e.g. strip, bottle, box)" GridPane.rowIndex="4" GridPane.columnIndex="0"/>
-                <TextField fx:id="unitField" GridPane.rowIndex="4" GridPane.columnIndex="1" text="strip"/>
+                <TextField fx:id="unitField" GridPane.rowIndex="4" GridPane.columnIndex="1"/>
 
-                <Label text="Units per Pack (e.g. 10 tablets per strip)" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
-                <TextField fx:id="packSizeField" GridPane.rowIndex="5" GridPane.columnIndex="1" text="10"/>
+                <Label text="Units per Pack" GridPane.rowIndex="5" GridPane.columnIndex="0"/>
+                <TextField fx:id="packSizeField" GridPane.rowIndex="5" GridPane.columnIndex="1"/>
 
-                <Label text="Pack Price* (e.g. price of ONE strip)" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
+                <Label text="Pack Price*" GridPane.rowIndex="6" GridPane.columnIndex="0"/>
                 <TextField fx:id="priceField" GridPane.rowIndex="6" GridPane.columnIndex="1"/>
 
                 <Label text="Tax % (GST)" GridPane.rowIndex="7" GridPane.columnIndex="0"/>
-                <TextField fx:id="taxField" GridPane.rowIndex="7" GridPane.columnIndex="1" text="5"/>
+                <TextField fx:id="taxField" GridPane.rowIndex="7" GridPane.columnIndex="1"/>
 
                 <Label text="Barcode" GridPane.rowIndex="8" GridPane.columnIndex="0"/>
                 <TextField fx:id="barcodeField" GridPane.rowIndex="8" GridPane.columnIndex="1"/>
 
                 <Label text="Low Stock Alert Threshold" GridPane.rowIndex="9" GridPane.columnIndex="0"/>
-                <TextField fx:id="thresholdField" GridPane.rowIndex="9" GridPane.columnIndex="1" text="10"/>
+                <TextField fx:id="thresholdField" GridPane.rowIndex="9" GridPane.columnIndex="1"/>
 
                 <Label text="Controlled Drug?" GridPane.rowIndex="10" GridPane.columnIndex="0"/>
                 <CheckBox fx:id="controlledCheckBox" GridPane.rowIndex="10" GridPane.columnIndex="1"/>
             </GridPane>
 
-            <Label text="Example: Crocin strip has 10 tablets, strip price ₹10 -&#62; set 'Units per Pack' = 10, 'Pack Price' = 10. GST guide (2025 reform): most medicines = 5%, life-saving drugs = 0%, nicotine gum/APIs = 18%."
-                   wrapText="true" style="-fx-text-fill: #666; -fx-font-size: 11px;" maxWidth="480"/>
+            <Label text="Note: changing 'Units per Pack' only affects future stock batches you add - it does not retroactively recalculate stock you already added."
+                   wrapText="true" style="-fx-text-fill: #a60;" maxWidth="480"/>
 
             <Label fx:id="errorLabel" style="-fx-text-fill: red;"/>
 
             <HBox spacing="10">
-                <Button text="Save" onAction="#handleSave" style="-fx-font-weight: bold;"/>
+                <Button text="Save Changes" onAction="#handleSave" style="-fx-font-weight: bold;"/>
                 <Button text="Cancel" onAction="#handleCancel"/>
             </HBox>
         </VBox>

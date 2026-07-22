@@ -4,6 +4,7 @@ import com.pharmacy.app.util.DatabaseManager;
 
 import java.sql.*;
 import java.time.LocalDate;
+import com.pharmacy.app.util.DateUtil;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,7 +40,7 @@ public class ReportDAO {
                     grandTotal += total;
                     lines.add(String.format("%-6d %-20s %-10.2f %-10.2f %-10.2f %-10.2f %-8s",
                             rs.getInt("id"),
-                            rs.getString("created_at"),
+                            DateUtil.toDisplay(rs.getString("created_at")),
                             rs.getDouble("subtotal"),
                             rs.getDouble("discount"),
                             rs.getDouble("tax_amount"),
@@ -85,7 +86,7 @@ public class ReportDAO {
                     lines.add(String.format("%-30s %-15s %-12s %-8d%s",
                             rs.getString("name"),
                             rs.getString("batch_no"),
-                            expiry,
+                            DateUtil.toDisplay(expiry),
                             rs.getInt("quantity"),
                             flag));
                 }
@@ -135,7 +136,6 @@ public class ReportDAO {
         }
 
         lines.add("-".repeat(66));
-        //lines.add("-".repeat(66));
         lines.add(String.format("Total Inventory Value: %.2f", grandTotal));
         return lines;
     }

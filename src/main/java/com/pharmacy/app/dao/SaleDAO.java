@@ -111,4 +111,48 @@ public class SaleDAO {
             try { conn.setAutoCommit(true); } catch (SQLException ignored) {}
         }
     }
+
+    /** Returns a formatted purchase history (date/time, items, total) for one patient, most recent first. */
+    public static java.util.List<String> getPurchaseHistoryForPatient(int patientId) {
+        Connection conn = DatabaseManager.getConnection();
+        java.util.List<String> lines = new java.util.ArrayList<>();
+
+        String salesSql = "SELECT id, created_at, total, payment_mode FROM sales WHERE patient_id = ? ORDER BY created_at DESC";
+        String itemsSql = """
+            SELECT m.name, si.quantity, si.unit_price, si.line_total
+            FROM sale_items si JOIN medicines m ON m.id = si.medicine_id
+            WHERE si.sale_id = ?
+            """;
+
+        try (PreparedStatement salesPs = conn.prepareStatement(salesSql)) {
+            salesPs.setInt(1, patientId);
+            try (ResultSet salesRs = salesPs.executeQuery()) {
+                boolean any = false;
+                while (salesRs.next()) {
+                    any = true;
+                    int saleId = salesRs.getInt("id");
+                    lines.add("Sale #" + saleId + "  |  " + com.pharmacy.app.util.DateUtil.toDisplay(salesRs.getString("created_at")) +
+                            "  |  Total: " + String.format("%.2f", salesRs.getDouble("total")) +
+                            "  |  Payment: " + salesRs.getString("payment_mode"));
+
+                    try (PreparedStatement itemsPs = conn.prepareStatement(itemsSql)) {
+                        itemsPs.setInt(1, saleId);
+                        try (ResultSet itemsRs = itemsPs.executeQuery()) {
+                            while (itemsRs.next()) {
+                                lines.add("    - " + itemsRs.getString("name") + "  x" + itemsRs.getInt("quantity") +
+                                        "  @ " + String.format("%.2f", itemsRs.getDouble("unit_price")) +
+                                        "  = " + String.format("%.2f", itemsRs.getDouble("line_total")));
+                            }
+                        }
+                    }
+                    lines.add("");
+                }
+                if (!any) lines.add("No purchase history for this patient yet.");
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to fetch purchase history: " + e.getMessage(), e);
+        }
+
+        return lines;
+    }
 }
